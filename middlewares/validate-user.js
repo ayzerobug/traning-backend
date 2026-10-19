@@ -1,7 +1,7 @@
-import { users } from "../data/users.js";
 import AppError from "../errors/AppError.js";
+import pool from "../configs/db/index.js";
 
-export function validateUser(req, res, next) {
+export async function validateUser(req, res, next) {
   const { name, email } = req.body;
 
   if (!name || !email) {
@@ -13,8 +13,10 @@ export function validateUser(req, res, next) {
     throw new AppError("Invalid email format", 400);
   }
 
-  const existingUser = users.find((user) => user.email === email);
-  if (existingUser) {
+  const query = "SELECT * FROM users WHERE email = $1 LIMIT 1";
+  const result = await pool.query(query, [email]);
+
+  if (result.rows.length > 0) {
     throw new AppError("User with this email already exists", 400);
   }
 
