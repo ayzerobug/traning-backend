@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { logger } from "./middlewares/logger.js";
 import usersRouter from "./routes/users.js";
+import postsRouter from "./routes/posts.js";
 import { errorHandler } from "./middlewares/error-handler.js";
 
 const app = express();
@@ -15,6 +16,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to the API!" });
 });
 
+app.use("/posts", postsRouter);
 app.use("/users", usersRouter);
 
 // Error handling middleware
