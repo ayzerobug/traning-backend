@@ -3,7 +3,11 @@ import express from "express";
 import { logger } from "./middlewares/logger.js";
 import usersRouter from "./routes/users.js";
 import postsRouter from "./routes/posts.js";
+import authRouter from "./routes/auth.js";
 import { errorHandler } from "./middlewares/error-handler.js";
+import { requireAuth } from "./middlewares/auth-check.js";
+import prisma from "./prisma/client.js";
+import { UserResource } from "./resources/user-resource.js";
 
 const app = express();
 
@@ -16,8 +20,19 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to the API!" });
 });
 
+app.use("/auth", authRouter);
+
 app.use("/posts", postsRouter);
-app.use("/users", usersRouter);
+app.use("/users", requireAuth, usersRouter);
+
+app.use("/me", requireAuth, async (req, res) => {
+  const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+
+  res.json({
+    message: "Request Successful",
+    data: UserResource.toJSON(user),
+  });
+});
 
 // Error handling middleware
 app.use(errorHandler);

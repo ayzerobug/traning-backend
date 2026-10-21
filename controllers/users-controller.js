@@ -1,11 +1,15 @@
 import prisma from "../prisma/client.js";
+import { UserResource } from "../resources/user-resource.js";
 
 async function getAllUsers(req, res) {
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
   });
 
-  res.json({ message: "Request Successful", data: users });
+  res.json({
+    message: "Request Successful",
+    data: UserResource.collection(users),
+  });
 }
 
 async function getSingleUser(req, res) {
