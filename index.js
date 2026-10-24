@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRouter);
 
-app.use("/posts", postsRouter);
+app.use("/posts", requireAuth, postsRouter);
 app.use("/users", requireAuth, usersRouter);
 
 app.use("/me", requireAuth, async (req, res) => {

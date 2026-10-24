@@ -25,10 +25,10 @@ model User {
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
+  id        Int      @id @default(autoincrement()) // PRIMARY KEY
   title     String
   body      String
   createdAt DateTime @default(now())
-  userId    Int
+  userId    Int // FOREIGN KEY
   user      User     @relation(fields: [userId], references: [id])
 }
