@@ -4,6 +4,7 @@ export class UserResource {
       id: user.id,
       email: user.email,
       name: user.name,
+      avatarUrl: user.avatar ? `${process.env.APP_URL}/${user.avatar}` : null,
       isActive: user.isActive,
       createdAt: user.createdAt,
     };
