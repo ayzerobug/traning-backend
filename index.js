@@ -13,15 +13,14 @@ import { apiLimiter, authLimiter } from "./middlewares/rate-limiter.js";
 import helmet from "helmet";
 import cors from "cors";
 import AppError from "./errors/AppError.js";
+import sanitize from "./middlewares/mongo-sanitize.js";
 
 const app = express();
 
-// Middleware - parse incoming JSON requests
-app.use(express.json());
-app.use(logger);
-
+// ── 1. Security headers ───────────────────────────
 app.use(helmet());
 
+// ── 2. CORS ───────────────────────────────────────
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",")
   : ["localhost:5173"];
@@ -42,12 +41,22 @@ app.use(
   }),
 );
 
-app.use("/uploads", express.static("uploads"));
+// ── 3. Body parser ────────────────────────────────
+app.use(express.json());
 
-// Apply the general rate limiter to ALL routes
+// ── 4. NoSQL injection protection ────────────────
+app.use(sanitize);
+
+// ── 5. Rate limiting ──────────────────────────────
 app.use(apiLimiter);
 
-// Define routes
+// ── 6. Static uploads ─────────────────────────────
+app.use("/uploads", express.static("uploads"));
+
+// ── 7. Request Logger ─────────────────────────────
+app.use(logger);
+
+// ── 8. Routes ─────────────────────────────────────
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the API!" });
 });
@@ -67,10 +76,10 @@ app.use("/me", requireAuth, async (req, res) => {
   });
 });
 
-// Error handling middleware
+// ── 9. Global error handler ───────────────────────
 app.use(errorHandler);
 
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });

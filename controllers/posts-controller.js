@@ -1,6 +1,7 @@
 import AppError from "../errors/AppError.js";
 import prisma from "../prisma/client.js";
 import { PostResource } from "../resources/post-resource.js";
+import xss from "xss";
 
 async function getAllPosts(req, res) {
   const page = Number(req.query.page) || 1;
@@ -64,7 +65,11 @@ async function createPost(req, res) {
   const { title, body } = req.body;
 
   const post = await prisma.post.create({
-    data: { title, body, userId: req.user.id },
+    data: {
+      title: xss(title),
+      body: xss(body),
+      userId: req.user.id,
+    },
   });
 
   res.status(201).json({ message: "User created successfully", data: post });
