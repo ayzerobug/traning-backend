@@ -1,11 +1,11 @@
 import prisma from "../prisma/client.js";
 import { UserResource } from "../resources/user-resource.js";
+import bcrypt from "bcryptjs";
 
 async function getAllUsers(req, res) {
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
   });
-
   res.json({
     message: "Request Successful",
     data: UserResource.collection(users),
@@ -24,7 +24,7 @@ async function createUser(req, res) {
   const { name, email } = req.body;
 
   const user = await prisma.user.create({
-    data: { name, email },
+    data: { name, email, password: await bcrypt.hash("password123", 10) },
   });
 
   res.status(201).json({ message: "User created successfully", data: user });

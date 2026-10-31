@@ -11,14 +11,6 @@ import crypto from "crypto";
 async function register(req, res) {
   const { name, email, password } = req.body;
 
-  if (!name || !email || !password) {
-    throw new AppError("name, email and password are required", 400);
-  }
-
-  if (password.length < 6) {
-    throw new AppError("password must be at least 6 characters", 400);
-  }
-
   const userExist = await prisma.user.findFirst({ where: { email } });
 
   if (userExist) {
@@ -53,10 +45,6 @@ async function register(req, res) {
 async function login(req, res) {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    throw new AppError("email and password are required", 400);
-  }
-
   const user = await prisma.user.findFirst({ where: { email } });
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -81,8 +69,6 @@ async function login(req, res) {
 
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
-
-  if (!email) throw new AppError("email is required, 400");
 
   const user = await prisma.user.findUnique({ where: { email } });
 
@@ -117,14 +103,6 @@ const forgotPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   const { token, password } = req.body;
-
-  if (!token || !password) {
-    throw new AppError("token and password are required.", 400);
-  }
-
-  if (password.length < 6) {
-    throw new AppError("password must be at least 6 characters", 400);
-  }
 
   const user = await prisma.user.findFirst({
     where: {
