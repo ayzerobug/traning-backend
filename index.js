@@ -9,6 +9,7 @@ import { errorHandler } from "./middlewares/error-handler.js";
 import { requireAuth } from "./middlewares/auth-check.js";
 import prisma from "./prisma/client.js";
 import { UserResource } from "./resources/user-resource.js";
+import { apiLimiter, authLimiter } from "./middlewares/rate-limiter.js";
 
 const app = express();
 
@@ -18,12 +19,15 @@ app.use(logger);
 
 app.use("/uploads", express.static("uploads"));
 
+// Apply the general rate limiter to ALL routes
+app.use(apiLimiter);
+
 // Define routes
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the API!" });
 });
 
-app.use("/auth", authRouter);
+app.use("/auth", authLimiter, authRouter);
 
 app.use("/posts", requireAuth, postsRouter);
 app.use("/users", requireAuth, usersRouter);
