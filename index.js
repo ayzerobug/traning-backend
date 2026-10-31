@@ -10,12 +10,37 @@ import { requireAuth } from "./middlewares/auth-check.js";
 import prisma from "./prisma/client.js";
 import { UserResource } from "./resources/user-resource.js";
 import { apiLimiter, authLimiter } from "./middlewares/rate-limiter.js";
+import helmet from "helmet";
+import cors from "cors";
+import AppError from "./errors/AppError.js";
 
 const app = express();
 
 // Middleware - parse incoming JSON requests
 app.use(express.json());
 app.use(logger);
+
+app.use(helmet());
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
+  : ["localhost:5173"];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        const error = new AppError("Not allowed by CORS");
+        callback(error, false);
+      }
+    },
+    credentials: true,
+  }),
+);
 
 app.use("/uploads", express.static("uploads"));
 
