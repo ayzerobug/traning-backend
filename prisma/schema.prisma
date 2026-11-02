@@ -23,15 +23,30 @@ model User {
   resetToken       String?
   resetTokenExpiry DateTime?
   posts            Post[]
+  comments         Comment[]
 
   @@map("users")
 }
 
 model Post {
-  id        Int      @id @default(autoincrement()) // PRIMARY KEY
+  id        Int       @id @default(autoincrement()) // PRIMARY KEY
   title     String
   body      String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   userId    Int // FOREIGN KEY
+  user      User      @relation(fields: [userId], references: [id])
+  comments  Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  body      String
+  createdAt DateTime @default(now())
+  postId    Int
+  userId    Int
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id])
+
+  @@index([postId])
+  @@map("comments")
 }

@@ -3,6 +3,7 @@ import express from "express";
 import { logger } from "./middlewares/logger.js";
 import usersRouter from "./routes/users.js";
 import postsRouter from "./routes/posts.js";
+import commentsRouter from "./routes/comments.js";
 import profileRouter from "./routes/profile.js";
 import authRouter from "./routes/auth.js";
 import { errorHandler } from "./middlewares/error-handler.js";
@@ -64,6 +65,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authLimiter, authRouter);
 
 app.use("/posts", requireAuth, postsRouter);
+app.use("/comments", requireAuth, commentsRouter);
 app.use("/users", requireAuth, usersRouter);
 app.use("/profile", requireAuth, profileRouter);
 
